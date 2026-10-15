@@ -3,7 +3,8 @@
 
 #define TAM_FECHA_TXT 11     /* "dd/mm/aaaa" + '\0' */
 #define FECHA_VACIA   2
-
+#define ERROR_FATAL 0
+#define TODO_OK 1
 typedef struct
 {
     int dia;
@@ -24,6 +25,9 @@ int  dias_julianos(const t_fecha *);
 void suma_anios(t_fecha *, int);
 int  edad(const t_fecha *nacimiento, const t_fecha *referencia);
 
+int fechaCorrecta(const t_fecha *fecha);
+int cantDiasMes(int mes, int anio);
+int esBisiesto(int anio);
 void pedir_fecha_proceso(t_fecha *fecha_proceso);
 
 /*============================================================================*/
