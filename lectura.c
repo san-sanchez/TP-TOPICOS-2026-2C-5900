@@ -41,44 +41,75 @@ int leer_archivo_texto_ALU(const char *path_txt, FILE *arch_bin, t_indice *indic
                        long (*obtener_clave)(const void *),
                        unsigned *aceptados, unsigned *rechazados)
 {
-    //texto_a_socio | texto_a_titulo
+    FILE *txt = fopen(path_txt, "rt");
+    if(!txt)
+        return ERROR;
 
-    //validar
-    //int valida_titulo_ALU(void *reg, const t_contexto *ctx, char *tipo_error)
-    //int valida_socio_ALU(void *reg, const t_contexto *ctx, char *tipo_error)
-    // rechazar
-
-    FILE *archTxt = fopen(path_txt,"r");
-    if(!archTxt) return 0;
+    *aceptados = 0;
+    *rechazados = 0;
 
     char linea[TAM_LINEA];
-    char error[TAM_TIPO_ERROR];
+    char tipo_error[TAM_TIPO_ERROR];
 
-    char *p;
-    t_reg_indice reg_ind;
-
-    t_contexto ctx;
-    ctx.indice = indice;
-    ctx.arch_bin = arch_bin;
-    ctx.fecha_proceso = fecha_proceso;
-    ctx.id_modificando = 0;
-
-    while(fgets(linea,sizeof(linea),archTxt))
+    while(fgets(linea, sizeof(linea), txt))
     {
-        if(parsear(linea,reg))
+        quitar_salto(linea);
+        if(cadena_vacia(linea))
+            continue;
+
+        /* 1. Parsear la línea CSV en el registro */
+        if(parsear(linea, reg) != OK)
         {
-            validar(reg,&ctx,error);
-            if(strcmp(error,"OK"))
-            {
-                rechazar(reg,linea,error,fecha_proceso);
-            }
-        }
-        else
-        {
-            rechazar(reg,linea,"",fecha_proceso);
+            rechazar(reg, linea, "FORMATO", fecha_proceso);
+            (*rechazados)++;
+            continue;
         }
 
+        /* 2. Armar contexto para la validación */
+        t_contexto ctx;
+        ctx.indice = indice;
+        ctx.arch_bin = arch_bin;
+        ctx.fecha_proceso = fecha_proceso;
+        ctx.id_modificando = 0;   /* carga masiva: no hay modificación */
+
+        /* 3. Validar el registro */
+        if(validar(reg, &ctx, tipo_error) != OK)
+        {
+            rechazar(reg, linea, tipo_error, fecha_proceso);
+            (*rechazados)++;
+            continue;
+        }
+
+        /* 4. Escribir al final del archivo binario y obtener nro_reg */
+        fseek(arch_bin, 0, SEEK_END);
+        unsigned nro_reg = (unsigned)(ftell(arch_bin) / tamanyo);
+
+        if(fwrite(reg, tamanyo, 1, arch_bin) != 1)
+        {
+            fclose(txt);
+            return ERROR;
+        }
+        fflush(arch_bin);
+
+        /* 5. Insertar en el índice (ordenado por id) */
+        t_reg_indice reg_ind;
+        reg_ind.nro_reg = nro_reg;
+        reg_ind.id = obtener_clave(reg);
+
+        if(indice_insertar_ALU(indice, &reg_ind, sizeof(t_reg_indice), compara_reg_indice_ALU) != OK)
+        {
+            /* Clave duplicada o sin memoria: se rechaza la línea */
+            rechazar(reg, linea, "DUPLICADO", fecha_proceso);
+            (*rechazados)++;
+            continue;
+        }
+
+        (*aceptados)++;
     }
+
+    fclose(txt);
+    return OK;
+
 
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
@@ -115,10 +146,36 @@ Observaciones:  -
 ******************************************************************************/
 int cargar_indices_ALU(t_indice *ind_socios, t_indice *ind_titulos)
 {
+    int cargados_socios;
+    int cargados_titulos;
+
+    indice_vaciar_ALU(ind_socios);
+    indice_vaciar_ALU(ind_titulos);
+
+    cargados_socios = indice_cargar_ALU(
+        ARCH_SOCIOS_BIN,
+        ind_socios,
+        sizeof(t_socio),
+        clave_socio,
+        activo_socio,
+        compara_reg_indice_ALU
+    );
+
+    cargados_titulos = indice_cargar_ALU(
+        ARCH_TITULOS_BIN,
+        ind_titulos,
+        sizeof(t_titulo),
+        clave_titulo,
+        activo_titulo,
+        compara_reg_indice_ALU
+    );
+
+    return (cargados_socios == OK && cargados_titulos == OK) ? 1 : 0;
+
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
        funcion de la biblioteca que tenga version _ALU. */
-    return cargar_indices(ind_socios, ind_titulos);
+    //return cargar_indices(ind_socios, ind_titulos);
 }
 
 /******************************************************************************
@@ -185,14 +242,13 @@ int generar_binarios_ALU(t_indice *ind_socios, t_indice *ind_titulos, const t_fe
 
     fclose(archTitulo);
 
-    int cargados_socios = indice_cargar_ALU(ARCH_SOCIOS_BIN, ind_socios, sizeof(t_socio),clave_socio,activo_socio, compara_reg_indice_ALU);
-    int cargados_titulos = indice_cargar_ALU(ARCH_TITULOS_BIN, ind_titulos, sizeof(t_titulo),clave_titulo,activo_titulo, compara_reg_indice_ALU);
+    int cargado = cargar_indices(ind_socios,ind_titulos);
 
     printf("\n--- REGENERACION DE ARCHIVOS BINARIOS EXITOSA ---\n");
     printf("Socios   -> Aceptados: %u | Rechazados: %u \n", aceptados_socio, rechazados_socio);
     printf("Titulos  -> Aceptados: %u | Rechazados: %u\n", aceptados_titulo, rechazados_titulo);
 
-    return (cargados_socios && cargados_titulos);
+    return cargado;
 
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
