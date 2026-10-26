@@ -73,6 +73,9 @@ void abm_socio(t_indice *indice, const t_fecha *fecha_proceso);
 /*============================================================================*/
 
 int texto_a_socio_ALU(const char *linea, void *reg);
+void inicializar_socio_default(t_socio *s);
+void asignar_campos_socio(t_socio *s, char *campos[], int cant_campos);
+
 int valida_socio_ALU(void *reg, const t_contexto *ctx, char *tipo_error);
 int socio_leer_ALU(FILE *arch, unsigned nro_reg, t_socio *s);
 int socio_escribir_ALU(FILE *arch, unsigned nro_reg, const t_socio *s);

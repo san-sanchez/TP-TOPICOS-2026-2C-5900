@@ -41,6 +41,19 @@ int leer_archivo_texto_ALU(const char *path_txt, FILE *arch_bin, t_indice *indic
                        long (*obtener_clave)(const void *),
                        unsigned *aceptados, unsigned *rechazados)
 {
+    FILE *archTxt = fopen(path_txt,"r");
+    if(!archTxt) return 0;
+
+//    char linea[512];
+//    t_contexto ctx;
+//    while(fgets(linea,sizeof(linea),archTxt))
+//    {
+//        if(!parsear(linea,reg))
+//        {
+//            rechazar()
+//        }
+//    }
+
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
        funcion de la biblioteca que tenga version _ALU. */
@@ -55,10 +68,14 @@ Observaciones:  Se usa como cmp en todas las operaciones del TDA indice.
 ******************************************************************************/
 int compara_reg_indice_ALU(const void *a, const void *b)
 {
+    t_reg_indice *auxA = (t_reg_indice*)a;
+    t_reg_indice *auxB = (t_reg_indice*)b;
+
+    return auxA->id - auxB->id;
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
        funcion de la biblioteca que tenga version _ALU. */
-    return compara_reg_indice(a, b);
+    //return compara_reg_indice(a, b);
 }
 
 /******************************************************************************

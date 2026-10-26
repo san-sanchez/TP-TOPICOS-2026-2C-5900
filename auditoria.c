@@ -24,10 +24,23 @@ Observaciones:  El archivo se abre en modo append; si no existe se crea.
 int auditoria_registrar_ALU(const char *path, const char *dni_texto,
                         const char *tipo_error, const t_fecha *fecha_proceso)
 {
+    FILE *arch = fopen(path, "at");
+    if (!arch) return 0;
+
+    fprintf(arch, "%s;%s;%02d/%02d/%04d\n",
+            dni_texto,
+            tipo_error,
+            fecha_proceso->dia,
+            fecha_proceso->mes,
+            fecha_proceso->anio);
+
+    fclose(arch);
+    return 1;
+
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
        funcion de la biblioteca que tenga version _ALU. */
-    return auditoria_registrar(path, dni_texto, tipo_error, fecha_proceso);
+    //return auditoria_registrar(path, dni_texto, tipo_error, fecha_proceso);
 }
 
 /******************************************************************************

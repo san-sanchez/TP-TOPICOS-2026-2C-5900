@@ -151,13 +151,21 @@ Observaciones:  La comparacion entre claves se realiza exclusivamente mediante
 int indice_buscar_ALU(const t_indice *indice, void *registro, size_t tamanyo,
                   int (*cmp)(const void *, const void *))
 {
-    size_t i;
-    void *vec = indice->vindice;
+    int ini = 0, fin=indice->cantidad_elementos_actual - 1, medio;
 
-    for(i=0;i<indice->cantidad_elementos_actual;i++)
+    while(ini <= fin)
     {
-        if(cmp(registro,vec)==0) return 1;
-        vec += tamanyo;
+        medio = (ini + fin) / 2;
+
+        void *elem_medio = (char *)indice->vindice + medio * tamanyo;
+        int comp = cmp(registro, elem_medio);
+
+        if (comp == 0)
+            return medio;           // Encontrado
+        else if (comp < 0)
+            fin = medio - 1;        // Buscar en la mitad izquierda
+        else
+            ini = medio + 1;     // Buscar en la mitad derecha
     }
 
     return 0;
