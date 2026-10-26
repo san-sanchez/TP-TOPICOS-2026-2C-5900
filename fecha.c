@@ -56,10 +56,7 @@ void pedir_fecha_proceso_ALU(t_fecha *fecha_proceso)
             system("cls");
         }
     }while(!flag);
-    /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
-       implementacion. En la entrega no puede quedar ninguna llamada a una
-       funcion de la biblioteca que tenga version _ALU. */
-       printf("INGRESO DE FECHA: %02d/%02d/%04d\n",fecha_proceso->dia,fecha_proceso->mes,fecha_proceso->anio);
+    printf("INGRESO DE FECHA: %02d/%02d/%04d\n",fecha_proceso->dia,fecha_proceso->mes,fecha_proceso->anio);
 }
 int fechaCorrecta(const t_fecha *fecha)
 {

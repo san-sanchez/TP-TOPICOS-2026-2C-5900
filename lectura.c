@@ -41,10 +41,74 @@ int leer_archivo_texto_ALU(const char *path_txt, FILE *arch_bin, t_indice *indic
                        long (*obtener_clave)(const void *),
                        unsigned *aceptados, unsigned *rechazados)
 {
-    /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
-       implementacion. En la entrega no puede quedar ninguna llamada a una
-       funcion de la biblioteca que tenga version _ALU. */
-    return leer_archivo_texto(path_txt, arch_bin, indice, reg, tamanyo, fecha_proceso, parsear, validar, rechazar, obtener_clave, aceptados, rechazados);
+    FILE *txt = fopen(path_txt, "rt");
+    if(!txt)
+        return ERROR;
+
+    *aceptados = 0;
+    *rechazados = 0;
+
+    char linea[TAM_LINEA];
+    char tipo_error[TAM_TIPO_ERROR];
+
+    while(fgets(linea, sizeof(linea), txt))
+    {
+        quitar_salto(linea);
+        if(cadena_vacia(linea))
+            continue;
+
+        /* 1. Parsear la linea CSV en el registro */
+        if(parsear(linea, reg) != OK)
+        {
+            rechazar(reg, linea, "FORMATO", fecha_proceso);
+            (*rechazados)++;
+            continue;
+        }
+
+        /* 2. Armar contexto para la validacion */
+        t_contexto ctx;
+        ctx.indice = indice;
+        ctx.arch_bin = arch_bin;
+        ctx.fecha_proceso = fecha_proceso;
+        ctx.id_modificando = 0;   /* carga masiva: no hay modificacion */
+
+        /* 3. Validar el registro */
+        if(validar(reg, &ctx, tipo_error) != OK)
+        {
+            rechazar(reg, linea, tipo_error, fecha_proceso);
+            (*rechazados)++;
+            continue;
+        }
+
+        /* 4. Escribir al final del archivo binario y obtener nro_reg */
+        fseek(arch_bin, 0, SEEK_END);
+        unsigned nro_reg = (unsigned)(ftell(arch_bin) / tamanyo);
+
+        if(fwrite(reg, tamanyo, 1, arch_bin) != 1)
+        {
+            fclose(txt);
+            return ERROR;
+        }
+        fflush(arch_bin);
+
+        /* 5. Insertar en el indice (ordenado por id) */
+        t_reg_indice reg_ind;
+        reg_ind.nro_reg = nro_reg;
+        reg_ind.id      = obtener_clave(reg);
+
+        if(indice_insertar_ALU(indice, &reg_ind, sizeof(t_reg_indice), compara_reg_indice_ALU) != OK)
+        {
+            /* Clave duplicada o sin memoria: se rechaza la linea */
+            rechazar(reg, linea, "DUPLICADO", fecha_proceso);
+            (*rechazados)++;
+            continue;
+        }
+
+        (*aceptados)++;
+    }
+
+    fclose(txt);
+    return OK;
 }
 
 /******************************************************************************
@@ -55,10 +119,14 @@ Observaciones:  Se usa como cmp en todas las operaciones del TDA indice.
 ******************************************************************************/
 int compara_reg_indice_ALU(const void *a, const void *b)
 {
+    t_reg_indice *auxA =(t_reg_indice*)a;
+    t_reg_indice *auxB =(t_reg_indice*)b;
+
+    return auxA->id - auxB->id;
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
        funcion de la biblioteca que tenga version _ALU. */
-    return compara_reg_indice(a, b);
+    //return compara_reg_indice(a, b);
 }
 
 /******************************************************************************

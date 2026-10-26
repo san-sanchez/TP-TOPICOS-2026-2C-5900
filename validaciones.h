@@ -8,7 +8,7 @@
 #define PREFIJO_HOMBRE 20
 #define PREFIJO_MUJER  27
 #define PREFIJO_RESTO1 23
-
+#define TAM_VEC 10
 void calcular_cuil(long dni, char sexo, char *dest);
 
 /* ---- Email (Anexo A.3) ---- */
@@ -22,6 +22,8 @@ int email_valido(const char *);
 /*============================================================================*/
 
 void calcular_cuil_ALU(long dni, char sexo, char *dest);
-int email_valido_ALU(const char *email);
 
+int email_valido_ALU(const char *email);
+int tiene_espacio(const char *src);
+char *caracter_unico(const char *src, char c);
 #endif /* VALIDACIONES_H_INCLUDED */

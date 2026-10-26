@@ -16,10 +16,86 @@ Observaciones:  -
 ******************************************************************************/
 void arreglar_apyn_ALU(char *s)
 {
-    /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
-       implementacion. En la entrega no puede quedar ninguna llamada a una
-       funcion de la biblioteca que tenga version _ALU. */
-    arreglar_apyn(s);
+    char aux[256];
+    char *apyn = s;
+    char *coma = strchr(s, ',');
+
+    if(coma)
+    {
+        /* formato: "APELLIDOS, NOMBRES" */
+        *coma = '\0';
+        char *apellido = s;
+        char *nombre = coma + 1;
+        /* quitar espacios sobrantes alrededor */
+        while(*apellido == ' ') apellido++;
+        while(*nombre == ' ') nombre++;
+        /* construir: "Apellido Nombre" */
+        int i = 0, j = 0;
+        /* copiar apellido */
+        while(apellido[i] && apellido[i] != ' ')
+        {
+            aux[j++] = (i == 0) ? toupper((unsigned char)apellido[i]) : tolower((unsigned char)apellido[i]);
+            i++;
+        }
+        if(apellido[i] == ' ')
+        {
+            aux[j++] = ' ';
+            i++;
+            while(apellido[i] == ' ') i++;
+            while(apellido[i])
+            {
+                aux[j++] = tolower((unsigned char)apellido[i]);
+                i++;
+            }
+        }
+        aux[j++] = ' ';
+        /* copiar nombre */
+        i = 0;
+        while(nombre[i] == ' ') i++;
+        int primera = 1;
+        while(nombre[i])
+        {
+            if(nombre[i] == ' ')
+            {
+                aux[j++] = ' ';
+                i++;
+                while(nombre[i] == ' ') i++;
+                primera = 1;
+                continue;
+            }
+            aux[j++] = (primera) ? toupper((unsigned char)nombre[i]) : tolower((unsigned char)nombre[i]);
+            primera = 0;
+            i++;
+        }
+        aux[j] = '\0';
+    }
+    else
+    {
+        /* formato sin coma: normalizar palabra por palabra */
+        int i = 0, j = 0, primera = 1;
+        while(s[i])
+        {
+            if(s[i] == ' ')
+            {
+                aux[j++] = ' ';
+                i++;
+                while(s[i] == ' ') i++;
+                primera = 1;
+                continue;
+            }
+            aux[j++] = (primera) ? toupper((unsigned char)s[i]) : tolower((unsigned char)s[i]);
+            primera = 0;
+            i++;
+        }
+        aux[j] = '\0';
+    }
+
+    /* quitar espacio final si lo hay */
+    int len = (int)strlen(aux);
+    if(len > 0 && aux[len-1] == ' ')
+        aux[len-1] = '\0';
+
+    strcpy(s, aux);
 }
 
 /******************************************************************************
@@ -36,8 +112,18 @@ Observaciones:  Si la linea tiene mas separadores que max, el ultimo campo
 ******************************************************************************/
 int separar_campos_ALU(char *linea, char *campos[], int max)
 {
-    /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
-       implementacion. En la entrega no puede quedar ninguna llamada a una
-       funcion de la biblioteca que tenga version _ALU. */
-    return separar_campos(linea, campos, max);
+    int i = 0;
+    campos[0] = linea;
+
+    for(char *p = linea; *p && i < max - 1; p++)
+    {
+        if(*p == SEPARADOR_CSV)
+        {
+            *p = '\0';
+            i++;
+            campos[i] = p + 1;
+        }
+    }
+
+    return i + 1;
 }
