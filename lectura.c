@@ -47,13 +47,15 @@ int leer_archivo_texto_ALU(const char *path_txt, FILE *arch_bin, t_indice *indic
     //int valida_titulo_ALU(void *reg, const t_contexto *ctx, char *tipo_error)
     //int valida_socio_ALU(void *reg, const t_contexto *ctx, char *tipo_error)
     // rechazar
-    //int auditoria_registrar_ALU(const char *path, const char *dni_texto,
-    //                    const char *tipo_error, const t_fecha *fecha_proceso)
 
     FILE *archTxt = fopen(path_txt,"r");
     if(!archTxt) return 0;
 
-    char linea[512];
+    char linea[TAM_LINEA];
+    char error[TAM_TIPO_ERROR];
+
+    char *p;
+    t_reg_indice reg_ind;
 
     t_contexto ctx;
     ctx.indice = indice;
@@ -63,13 +65,17 @@ int leer_archivo_texto_ALU(const char *path_txt, FILE *arch_bin, t_indice *indic
 
     while(fgets(linea,sizeof(linea),archTxt))
     {
-        if(!parsear(linea,reg))
+        if(parsear(linea,reg))
         {
-            rechazar(reg,linea,"error",fecha_proceso);
+            validar(reg,&ctx,error);
+            if(strcmp(error,"OK"))
+            {
+                rechazar(reg,linea,error,fecha_proceso);
+            }
         }
         else
         {
-
+            rechazar(reg,linea,"",fecha_proceso);
         }
 
     }
@@ -97,7 +103,7 @@ int compara_reg_indice_ALU(const void *a, const void *b)
        funcion de la biblioteca que tenga version _ALU. */
     //return compara_reg_indice(a, b);
 }
-
+///usar dentro de generar_binarios_indice
 /******************************************************************************
 Descripcion:    construye los indices de socios y de titulos a partir de los
                 archivos binarios existentes (solo registros activos).
@@ -127,12 +133,13 @@ Retorno:        1 si los indices quedaron cargados, 0 en caso contrario.
 Observaciones:  Los rechazos de socios se auditan en errores_socios.txt; los
                 de titulos solo se cuentan.
 ******************************************************************************/
+
 int generar_binarios_ALU(t_indice *ind_socios, t_indice *ind_titulos, const t_fecha *fecha_proceso)
 {
     indice_vaciar_ALU(ind_socios);
     indice_vaciar_ALU(ind_titulos);
 
-    FILE *archSocio = fopen(ARCH_SOCIOS_CSV,"wb+");
+    FILE *archSocio = fopen(ARCH_SOCIOS_BIN,"wb+");
     if(!archSocio) return 0;
 
     t_socio socio;
@@ -155,7 +162,7 @@ int generar_binarios_ALU(t_indice *ind_socios, t_indice *ind_titulos, const t_fe
 
     fclose(archSocio);
 
-    FILE *archTitulo = fopen(ARCH_TITULOS_CSV,"wb+");
+    FILE *archTitulo = fopen(ARCH_TITULOS_BIN,"wb+");
     if(!archTitulo) return 0;
 
     t_titulo titulo_buf;
