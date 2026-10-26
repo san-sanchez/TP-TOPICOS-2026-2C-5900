@@ -16,6 +16,48 @@ Observaciones:  -
 ******************************************************************************/
 void arreglar_apyn_ALU(char *s)
 {
+    char *lect = s, *esc = s;
+    int primeraLetraPalabra;
+    int posicionPalabra = 0;
+
+    while (*lect)
+    {
+        while (*lect && (isspace((unsigned char)*lect) || *lect == ','))
+            lect++;
+
+        if (*lect)
+        {
+            posicionPalabra++;
+
+            if (posicionPalabra == 2)
+            {
+                *esc = ',';
+                esc++;
+                *esc = ' ';
+                esc++;
+            }
+            else if (posicionPalabra > 2)
+            {
+                *esc = ' ';
+                esc++;
+            }
+
+            primeraLetraPalabra = 1;
+
+            while (*lect && !isspace((unsigned char)*lect) && *lect != ',')
+            {
+                *esc = primeraLetraPalabra
+                    ? (char)toupper((unsigned char)*lect)
+                    : (char)tolower((unsigned char)*lect);
+
+                primeraLetraPalabra = 0;
+                esc++;
+                lect++;
+            }
+        }
+    }
+
+    *esc = '\0';
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
        funcion de la biblioteca que tenga version _ALU. */

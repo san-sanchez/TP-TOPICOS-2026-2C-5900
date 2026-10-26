@@ -27,7 +27,7 @@
 	"indice.h"
 	"fecha.h"
 
-1791749670 c:\users\admin\desktop\tp-alumnos\validaciones.h
+1792975491 c:\users\admin\desktop\tp-alumnos\validaciones.h
 
 1791749670 c:\users\admin\desktop\tp-alumnos\titulo.h
 	<stdio.h>
@@ -54,13 +54,13 @@
 1791749670 c:\users\admin\desktop\tp-alumnos\auditoria.h
 	"fecha.h"
 
-1791749670 source:c:\users\admin\desktop\tp-alumnos\cadena.c
+1792974824 source:c:\users\admin\desktop\tp-alumnos\cadena.c
 	<string.h>
 	<ctype.h>
 	<stddef.h>
 	"cadena.h"
 
-1792023941 source:c:\users\admin\desktop\tp-alumnos\fecha.c
+1792024165 source:c:\users\admin\desktop\tp-alumnos\fecha.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -70,7 +70,7 @@
 	"util.h"
 	"indice.h"
 
-1791749670 source:c:\users\admin\desktop\tp-alumnos\indice.c
+1792865745 source:c:\users\admin\desktop\tp-alumnos\indice.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -139,7 +139,7 @@
 	"cadena.h"
 	"config.h"
 
-1791749670 source:c:\users\admin\desktop\tp-alumnos\validaciones.c
+1792975429 source:c:\users\admin\desktop\tp-alumnos\validaciones.c
 	<ctype.h>
 	<stdio.h>
 	<string.h>
