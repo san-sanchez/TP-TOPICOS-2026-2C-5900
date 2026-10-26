@@ -20,6 +20,16 @@ Observaciones:  Se pasa por puntero como parsear a leer_archivo_texto.
 ******************************************************************************/
 int texto_a_titulo_ALU(const char *linea, void *reg)
 {
+    t_titulo *aux = (t_titulo*)reg;
+    sscanf(linea,"%d;%[^;];%[^;];%d",&aux->id,aux->titulo,aux->genero,&aux->stock);
+//
+//    aux->id = 0;
+//    aux->genero = '\0';
+//    aux->titulo = '\0';
+//    aux->stock = -1;
+
+
+
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
        funcion de la biblioteca que tenga version _ALU. */

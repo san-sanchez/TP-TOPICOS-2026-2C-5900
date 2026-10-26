@@ -41,18 +41,38 @@ int leer_archivo_texto_ALU(const char *path_txt, FILE *arch_bin, t_indice *indic
                        long (*obtener_clave)(const void *),
                        unsigned *aceptados, unsigned *rechazados)
 {
+    //texto_a_socio | texto_a_titulo
+
+    //validar
+    //int valida_titulo_ALU(void *reg, const t_contexto *ctx, char *tipo_error)
+    //int valida_socio_ALU(void *reg, const t_contexto *ctx, char *tipo_error)
+    // rechazar
+    //int auditoria_registrar_ALU(const char *path, const char *dni_texto,
+    //                    const char *tipo_error, const t_fecha *fecha_proceso)
+
     FILE *archTxt = fopen(path_txt,"r");
     if(!archTxt) return 0;
 
-//    char linea[512];
-//    t_contexto ctx;
-//    while(fgets(linea,sizeof(linea),archTxt))
-//    {
-//        if(!parsear(linea,reg))
-//        {
-//            rechazar()
-//        }
-//    }
+    char linea[512];
+
+    t_contexto ctx;
+    ctx.indice = indice;
+    ctx.arch_bin = arch_bin;
+    ctx.fecha_proceso = fecha_proceso;
+    ctx.id_modificando = 0;
+
+    while(fgets(linea,sizeof(linea),archTxt))
+    {
+        if(!parsear(linea,reg))
+        {
+            rechazar(reg,linea,"error",fecha_proceso);
+        }
+        else
+        {
+
+        }
+
+    }
 
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
@@ -109,6 +129,64 @@ Observaciones:  Los rechazos de socios se auditan en errores_socios.txt; los
 ******************************************************************************/
 int generar_binarios_ALU(t_indice *ind_socios, t_indice *ind_titulos, const t_fecha *fecha_proceso)
 {
+    indice_vaciar_ALU(ind_socios);
+    indice_vaciar_ALU(ind_titulos);
+
+    FILE *archSocio = fopen(ARCH_SOCIOS_CSV,"wb+");
+    if(!archSocio) return 0;
+
+    t_socio socio;
+    unsigned aceptados_socio = 0, rechazados_socio = 0;
+
+    leer_archivo_texto_ALU(
+        ARCH_SOCIOS_CSV,
+        archSocio,
+        ind_socios,
+        &socio,
+        sizeof(t_socio),
+        fecha_proceso,
+        texto_a_socio_ALU,
+        valida_socio_ALU,
+        rechaza_socio,
+        clave_socio,
+        &aceptados_socio,
+        &rechazados_socio
+    );
+
+    fclose(archSocio);
+
+    FILE *archTitulo = fopen(ARCH_TITULOS_CSV,"wb+");
+    if(!archTitulo) return 0;
+
+    t_titulo titulo_buf;
+    unsigned aceptados_titulo = 0, rechazados_titulo = 0;
+
+    leer_archivo_texto_ALU(
+        ARCH_TITULOS_CSV,
+        archTitulo,
+        ind_titulos,
+        &titulo_buf,
+        sizeof(t_titulo),
+        fecha_proceso,
+        texto_a_titulo_ALU,
+        valida_titulo_ALU,
+        rechaza_titulo,
+        clave_titulo,
+        &aceptados_titulo,
+        &rechazados_titulo
+    );
+
+    fclose(archTitulo);
+
+    int cargados_socios = indice_cargar_ALU(ARCH_SOCIOS_BIN, ind_socios, sizeof(t_socio),clave_socio,activo_socio, compara_reg_indice_ALU);
+    int cargados_titulos = indice_cargar_ALU(ARCH_TITULOS_BIN, ind_titulos, sizeof(t_titulo),clave_titulo,activo_titulo, compara_reg_indice_ALU);
+
+    printf("\n--- REGENERACION DE ARCHIVOS BINARIOS EXITOSA ---\n");
+    printf("Socios   -> Aceptados: %u | Rechazados: %u \n", aceptados_socio, rechazados_socio);
+    printf("Titulos  -> Aceptados: %u | Rechazados: %u\n", aceptados_titulo, rechazados_titulo);
+
+    return (cargados_socios && cargados_titulos);
+
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
        funcion de la biblioteca que tenga version _ALU. */

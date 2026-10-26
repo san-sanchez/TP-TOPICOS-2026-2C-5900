@@ -116,7 +116,7 @@
 	"novedad.h"
 	"cadena.h"
 
-1793014702 source:c:\users\admin\desktop\tp-alumnos\socio.c
+1793033844 source:c:\users\admin\desktop\tp-alumnos\socio.c
 	<stdlib.h>
 	<string.h>
 	"socio.h"
@@ -126,7 +126,7 @@
 	"config.h"
 	"menu.h"
 
-1791749670 source:c:\users\admin\desktop\tp-alumnos\titulo.c
+1793029185 source:c:\users\admin\desktop\tp-alumnos\titulo.c
 	<stdlib.h>
 	<string.h>
 	"titulo.h"

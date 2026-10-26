@@ -27,9 +27,9 @@ int texto_a_socio_ALU(const char *linea, void *reg)
     t_socio *s = (t_socio *)reg;
     inicializar_socio_default(s);
 
-    char aux_linea[512];
-    strncpy(aux_linea, linea, sizeof(aux_linea) - 1);
-    aux_linea[sizeof(aux_linea) - 1] = '\0';
+    char aux_linea[TAM_LINEA];
+    strncpy(aux_linea, linea, TAM_LINEA - 1);
+    aux_linea[TAM_LINEA - 1] = '\0';
     char *p = strrchr(linea, '\n');
     if (p) *p = '\0';
 
@@ -332,6 +332,17 @@ Observaciones:  -
 ******************************************************************************/
 int socios_listar_ALU(const t_indice *indice, const char *path)
 {
+    if(!indice || !path) return 0;
+
+    FILE *arch =fopen(path,"rb");
+    if(!arch) return 0;
+
+    printf("%-10s   %-15s   %-30s   %-10s   %-1s   %-10s   %-7s   %-10s   %-1s   %-10s   %-s\n",
+       "DNI", "CUIL", "APELLIDOS Y NOMBRES", "NACIMIENTO", "S",
+       "AFILIACION", "CATEG.", "ULT.CUOTA", "E", "PLAN", "EMAIL TUTOR");
+
+
+
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
        funcion de la biblioteca que tenga version _ALU. */
