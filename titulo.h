@@ -47,4 +47,5 @@ int texto_a_titulo_ALU(const char *linea, void *reg);
 int valida_titulo_ALU(void *reg, const t_contexto *ctx, char *tipo_error);
 int titulos_listar_ALU(const t_indice *indice, const char *path);
 
+int genero_titulo(const char *src);
 #endif /* TITULO_H_INCLUDED */

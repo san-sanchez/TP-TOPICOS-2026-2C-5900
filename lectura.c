@@ -114,7 +114,7 @@ int leer_archivo_texto_ALU(const char *path_txt, FILE *arch_bin, t_indice *indic
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
        funcion de la biblioteca que tenga version _ALU. */
-    return leer_archivo_texto(path_txt, arch_bin, indice, reg, tamanyo, fecha_proceso, parsear, validar, rechazar, obtener_clave, aceptados, rechazados);
+    //return leer_archivo_texto(path_txt, arch_bin, indice, reg, tamanyo, fecha_proceso, parsear, validar, rechazar, obtener_clave, aceptados, rechazados);
 }
 
 /******************************************************************************
@@ -128,13 +128,18 @@ int compara_reg_indice_ALU(const void *a, const void *b)
     t_reg_indice *auxA = (t_reg_indice*)a;
     t_reg_indice *auxB = (t_reg_indice*)b;
 
-    return auxA->id - auxB->id;
+    if(auxA->id < auxB->id)
+        return -1;
+
+    if(auxA->id > auxB->id)
+        return 1;
+
+    return 0;
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
        funcion de la biblioteca que tenga version _ALU. */
     //return compara_reg_indice(a, b);
 }
-///usar dentro de generar_binarios_indice
 /******************************************************************************
 Descripcion:    construye los indices de socios y de titulos a partir de los
                 archivos binarios existentes (solo registros activos).
@@ -242,13 +247,12 @@ int generar_binarios_ALU(t_indice *ind_socios, t_indice *ind_titulos, const t_fe
 
     fclose(archTitulo);
 
-    int cargado = cargar_indices(ind_socios,ind_titulos);
 
     printf("\n--- REGENERACION DE ARCHIVOS BINARIOS EXITOSA ---\n");
     printf("Socios   -> Aceptados: %u | Rechazados: %u \n", aceptados_socio, rechazados_socio);
     printf("Titulos  -> Aceptados: %u | Rechazados: %u\n", aceptados_titulo, rechazados_titulo);
 
-    return cargado;
+    return 1;
 
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
