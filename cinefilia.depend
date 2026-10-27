@@ -10,7 +10,7 @@
 	"socio.h"
 	"titulo.h"
 
-1793014775 c:\users\admin\desktop\tp-alumnos\socio.h
+1793060898 c:\users\admin\desktop\tp-alumnos\socio.h
 	<stdio.h>
 	"fecha.h"
 	"indice.h"
@@ -126,7 +126,7 @@
 	"config.h"
 	"menu.h"
 
-1793054138 source:c:\users\admin\desktop\tp-alumnos\titulo.c
+1793056362 source:c:\users\admin\desktop\tp-alumnos\titulo.c
 	<stdlib.h>
 	<string.h>
 	"titulo.h"

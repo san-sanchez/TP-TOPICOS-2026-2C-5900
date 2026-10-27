@@ -77,6 +77,8 @@ void inicializar_socio_default(t_socio *s);
 void asignar_campos_socio(t_socio *s, char *campos[], int cant_campos);
 
 int valida_socio_ALU(void *reg, const t_contexto *ctx, char *tipo_error);
+int genero_socio(const char *src);
+
 int socio_leer_ALU(FILE *arch, unsigned nro_reg, t_socio *s);
 int socio_escribir_ALU(FILE *arch, unsigned nro_reg, const t_socio *s);
 int cuota_al_dia_ALU(const t_fecha *ultima_cuota, const t_fecha *fecha_proceso);

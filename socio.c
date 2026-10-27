@@ -138,12 +138,99 @@ Observaciones:  Si ctx->id_modificando == dni no se considera duplicado y se
 ******************************************************************************/
 int valida_socio_ALU(void *reg, const t_contexto *ctx, char *tipo_error)
 {
+    t_socio *socio = (t_socio*)reg;
+    char aux[TAM_CUIL];
+
+    if((DNI_MIN < socio->dni)&&(socio->dni <DNI_MAX))
+    {
+        strcpy(tipo_error,"DNI");
+        return 0;
+    }
+    if(socio->sexo != 'H' || socio->sexo != 'M')
+    {
+        strcpy(tipo_error,"SEXO");
+        return 0;
+    }
+    calcular_cuil_ALU(socio->dni,socio->sexo,aux);
+
+    if(strcmp(aux,socio->cuil)!=0)
+    {
+        strcpy(tipo_error,"CUIL");
+        return 0;
+    }
+    arreglar_apyn_ALU(socio->apellidos_nombres);
+  /*          FECHA DE NACIMIENTO            */
+    const t_fecha *f_proc = ctx->fecha_proceso;
+    if (!fecha_correcta(&socio->fecha_nacimiento)) {
+        strcpy(tipo_error, "FECHA_NACIMIENTO");
+        return 0;
+    }
+    t_fecha nac_mas_10 = socio->fecha_nacimiento;
+    suma_anios(&nac_mas_10, 10);
+    if (compara_fechas(&nac_mas_10, f_proc) > 0) {
+        strcpy(tipo_error, "FECHA_NACIMIENTO");
+        return 0;
+    }
+     /*          FECHA DE NACIMIENTO            */
+     /*          FECHA DE AFILIACION            */
+     if (!fecha_correcta(&socio->fecha_afiliacion)|| compara_fechas(&socio->fecha_afiliacion, &socio->fecha_nacimiento) <= 0) {
+        strcpy(tipo_error, "FECHA_AFILIACION");
+        return 0;
+     }
+        if (compara_fechas(&socio->fecha_afiliacion, f_proc) > 0) {
+        strcpy(tipo_error, "FECHA_AFILIACION");
+        return 0;
+     }
+    /*          FECHA DE AFILIACION            */
+    int anios_edad = edad(&socio->fecha_nacimiento, f_proc);
+    int es_menor_de_edad = (anios_edad < 18);
+
+    int categoria_es_menor = (strcmp(socio->categoria, "MENOR") == 0);
+    int categoria_es_adulto = (strcmp(socio->categoria, "ADULTO") == 0);
+
+    if (es_menor_de_edad && !categoria_es_menor) {
+        strcpy(tipo_error, "CATEGORIA");
+        return 0;
+    }
+    if (!es_menor_de_edad && !categoria_es_adulto) {
+        strcpy(tipo_error, "CATEGORIA");
+        return 0;
+    }
+    if(!fechaCorrecta(&socio->fecha_ultima_cuota)){
+        strcpy(tipo_error, "FECHA_ULTIMA_CUOTA");
+        return 0;
+    }
+    if(!cuota_al_dia_ALU(&socio->fecha_ultima_cuota,&socio->fecha_afiliacion)){
+        strcpy(tipo_error, "FECHA_ULTIMA_CUOTA");
+        return 0;
+    }
+
+    if(!cuota_al_dia_ALU(&socio->fecha_ultima_cuota,f_proc)){
+        strcpy(tipo_error, "FECHA_ULTIMA_CUOTA");
+        return 0;
+    }
+
+    if(!genero_socio(socio->plan)) return 0;
+
+
+
     /* TODO: reemplazar esta llamada a la funcion de la catedra por su propia
        implementacion. En la entrega no puede quedar ninguna llamada a una
        funcion de la biblioteca que tenga version _ALU. */
     return valida_socio(reg, ctx, tipo_error);
 }
+int genero_socio(const char *src)
+{
+    char *cad[CANT_PLANES]={"BASIC","PREMIUM","VIP","FAMILY"};
+    int i;
 
+    for(i=0 ; i < CANT_PLANES ; i++)
+    {
+        if(strcmp(src,cad[i]) == 0) return 1;
+
+    }
+    return 0;
+}
 /******************************************************************************
 Descripcion:    lee el registro nro_reg del archivo binario de socios.
 Parametros:     arch: archivo abierto en modo binario.
@@ -213,7 +300,7 @@ int cuota_al_dia_ALU(const t_fecha *ultima_cuota, const t_fecha *fecha_proceso)
     if (diferenciaMeses == 0) {
         return 1;
     }
-    if (diferenciaMeses == 1 && fecha_proceso->dia <= 10) {
+    if (diferenciaMeses == 1 && fecha_proceso->dia <= DIA_LIMITE_CUOTA) {
         return 1;
     }
     return 0;
